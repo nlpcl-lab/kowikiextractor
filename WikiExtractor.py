@@ -71,6 +71,9 @@ from io import StringIO
 from multiprocessing import Queue, Process, Value, cpu_count
 from timeit import default_timer
 
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 PY2 = sys.version_info[0] == 2
 # Python 2.7 compatibiity
@@ -207,6 +210,7 @@ templateKeys = set(['10', '828'])
 ##
 # Regex for identifying disambig pages
 filter_disambig_page_pattern = re.compile("{{disambig(uation)?(\|[^}]*)?}}")
+
 
 ##
 # page filtering logic -- remove templates, undesired xml namespaces, and disambiguation pages
@@ -562,14 +566,29 @@ class Extractor(object):
             out.write(out_str)
             out.write('\n')
         else:
+            """
             if options.print_revision:
                 header = '<doc id="%s" revid="%s" url="%s" title="%s">\n' % (self.id, self.revid, url, self.title)
             else:
                 header = '<doc id="%s" url="%s" title="%s">\n' % (self.id, url, self.title)
-            footer = "\n</doc>\n"
+            """
+            header = ''
+            if not options.no_doc:
+                if options.print_revision:
+                    header = '<doc id="%s" revid="%s" url="%s" title="%s">\n' % (self.id, self.revid, url, self.title)
+                else:
+                    header = ''
+                    ###@@@header = '<doc id="%s" url="%s" title="%s">\n' % (self.id, url, self.title)
+
+            if options.no_doc:
+                footer = '\n'
+            else:
+                footer = '\n</doc>\n'
+
             if out == sys.stdout:   # option -a or -o -
                 header = header.encode('utf-8')
-            out.write(header)
+            if header:
+                out.write(header)
             for line in text:
                 if out == sys.stdout:   # option -a or -o -
                     line = line.encode('utf-8')
@@ -584,10 +603,18 @@ class Extractor(object):
         logging.info('%s\t%s', self.id, self.title)
         
         # Separate header from text with a newline.
+        """
         if options.toHTML:
             title_str = '<h1>' + self.title + '</h1>'
         else:
             title_str = self.title + '\n'
+        """
+        title_str = ''
+        if not options.no_title:
+            if options.toHTML:
+                title_str += '<h1>' + self.title + '</h1>\n'
+            else:
+                title_str += self.title + '\n\n'
         # https://www.mediawiki.org/wiki/Help:Magic_words
         colon = self.title.find(':')
         if colon != -1:
@@ -2842,11 +2869,13 @@ def process_dump(input_file, template_file, out_file, file_size, file_compress,
         input = sys.stdin
     else:
         input = fileinput.FileInput(input_file, openhook=fileinput.hook_compressed)
+        ###@@@ input = open(input_file, 'r', encoding='utf-8')
+        # input = bz2.BZ2File(input_file, 'r')
 
     # collect siteinfo
     for line in input:
         # When an input file is .bz2 or .gz, line can be a bytes even in Python 3.
-        if not isinstance(line, text_type): line = line.decode('utf-8')
+        ###@@@if not isinstance(line, text_type): line = line.decode('utf-8')
         m = tagRE.search(line)
         if not m:
             continue
@@ -3119,6 +3148,10 @@ def main():
                         help="Minimum expanded text length required to write document (default=%(default)s)")
     groupP.add_argument("--filter_disambig_pages", action="store_true", default=options.filter_disambig_pages,
                         help="Remove pages from output that contain disabmiguation markup (default=%(default)s)")
+    groupP.add_argument("--no-doc", action="store_true",
+                        help="The output won't have the lines <doc> and </doc>")
+    groupP.add_argument("--no-title", action="store_true",
+                        help="The output won't have the titles of the articles")
     groupP.add_argument("-it", "--ignored_tags", default="", metavar="abbr,b,big",
                         help="comma separated list of tags that will be dropped, keeping their content")
     groupP.add_argument("-de", "--discard_elements", default="", metavar="gallery,timeline,noinclude",
@@ -3154,6 +3187,8 @@ def main():
 
     options.expand_templates = args.no_templates
     options.filter_disambig_pages = args.filter_disambig_pages
+    options.no_doc = args.no_doc
+    options.no_title = args.no_title
     options.keep_tables = args.keep_tables
 
     try:
