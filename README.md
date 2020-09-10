@@ -1,3 +1,7 @@
+# KowikiExtractor
+해당 코드는 [WikiExtractor.py](http://medialab.di.unipi.it/wiki/Wikipedia_Extractor)기반으로 수정된 코드이며,
+latest version의 wikiextractor와는 코드가 다릅니다. 자세한 설명은 '설명노트'를 참고해주세요.
+
 # WikiExtractor
 [WikiExtractor.py](http://medialab.di.unipi.it/wiki/Wikipedia_Extractor) is a Python script that extracts and cleans text from a [Wikipedia database dump](http://download.wikimedia.org/).
 
