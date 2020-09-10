@@ -2,6 +2,59 @@
 해당 코드는 [WikiExtractor.py](http://medialab.di.unipi.it/wiki/Wikipedia_Extractor)기반으로 수정된 코드이며,
 latest version의 wikiextractor와는 코드가 다릅니다. 자세한 설명은 '설명노트'를 참고해주세요.
 
+"## 20200910 버전 ##"
+-# WikiExtractor.py: xml.bz2파일을 다수 wiki text를 포함한 directory로 convert함.
+
+-# TextCollector.py: 다수 wiki text포함 directory를 하나의 text file로 합침.
+
+-# 해당 code는 no-doc, no-title, no-templates argument에 대한 추가 코드 수정이 완료되었음(git latest code와 다름).
+
+-# python2.7 linux환경에서 검증됨
+
+1. 설치
+git clone ### or unzip project
+
+2. 사용 명령어 예제
+python3 WikiExtractor.py -o <extracted_wiki_dir> --no-templates --processes 24 --no-doc --no-title <input_file_name (kowiki-20200820-pages-articles-multistream.xml.bz2)>
+python TextCollector.py <extracted_wiki_dir> <collected_file_name>
+WikiExtractor.py: bzcat dataset/kowiki-20200820-pages-articles-multistream.xml.bz2| -o dataset/kowiki20200820 --processes 24 --no-doc --no-title --no-templates -
+TextCollector.py: python TextCollector.py dataset/kowiki20200820 kowiki_all.txt
+
+------------------------------ 이전 버전 노트 ---------------------------------------
+
+-## 20200905 버전 ##
+1. 해당 project를 서버로 옮김(python2.7 기본 인터프리터 설정)
+2. 명령어 bzcat dataset/kowiki-20200820-pages-articles-multistream.xml.bz2| -o dataset/kowiki20200820 --processes 24 --no-doc --no-title --no-templates -
+(Finished 7-process extraction of 0 articles in 0.0s (0.0 art/s) 에러, https://github.com/attardi/wikiextractor/issues/124)
+
+-## 출처: http://kugancity.tistory.com/entry/%ED%95%9C%EA%B5%AD%EC%96%B4-%EB%89%B4%EC%8A%A4-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%A1%9C-%EB%94%A5%EB%9F%AC%EB%8B%9D-%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0-2-%EC%9C%84%ED%82%A4-%EB%8D%A4%ED%94%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%8C%8C%EC%8B%B1%ED%95%98%EA%B8%B0
+1. git 윈도우 설치
+2. python window내에서 사용하기: cmd에서 alias python='winpty python.exe' 출처: https://code-examples.net/ko/q/1f164d9
+3. git bash에서 폴더 들어가서 python WikiExtractor.py kowiki-20180801-pages-articles-multistream.xml
+
+-## cp949 codec 문제 in window
+-## 출처: https://github.com/attardi/wikiextractor/issues/89
+-## WikiExtractor.py에서 코드 변경. 밑에서 라인 2844, 2850임(2018-08-15 기준)
+Solution:
+According to :
+https://github.com/rappdw/wikiextractor/commit/934688f8f936ffae756c7f7bd072df1df22dd554
+
+Line 2706:
+Remove:
+input = fileinput.FileInput(input_file, openhook=fileinput.hook_compressed)
+Add:
+input = open(input_file, 'r', encoding='utf-8')
+
+Line 2710:
+Remove:
+line = line.decode('utf-8')
+
+-### 추가. template제거와 no-doc <doc~~>, no-title을 실행하도록 코드 변경한 wikiextractor.py파일은 nlpgpu4/project에 있음(이파일도 적용함)
+참고링크: https://github.com/attardi/wikiextractor/pull/91/commits/e2a3b27003a1ea3d49fc9ac281c594a77175f617#diff-520f8f057b6a6cc9c94f7994130935fbR525
+
+
+
+
 # WikiExtractor
 [WikiExtractor.py](http://medialab.di.unipi.it/wiki/Wikipedia_Extractor) is a Python script that extracts and cleans text from a [Wikipedia database dump](http://download.wikimedia.org/).
 
