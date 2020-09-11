@@ -12,13 +12,21 @@ latest version의 wikiextractor와는 코드가 다릅니다. 자세한 설명�
 -# python2.7 linux환경에서 검증됨
 
 1. 설치
+
 git clone ### or unzip project
 
 2. 사용 명령어 예제
-python3 WikiExtractor.py -o <extracted_wiki_dir> --no-templates --processes 24 --no-doc --no-title <input_file_name (kowiki-20200820-pages-articles-multistream.xml.bz2)>
-python TextCollector.py <extracted_wiki_dir> <collected_file_name>
+
 WikiExtractor.py: bzcat dataset/kowiki-20200820-pages-articles-multistream.xml.bz2| -o dataset/kowiki20200820 --processes 24 --no-doc --no-title --no-templates -
+
 TextCollector.py: python TextCollector.py dataset/kowiki20200820 kowiki_all.txt
+
+(사용 형태)
+
+python3 WikiExtractor.py -o <extracted_wiki_dir> --no-templates --processes 24 --no-doc --no-title <input_file_name (kowiki-20200820-pages-articles-multistream.xml.bz2)>
+
+python TextCollector.py <extracted_wiki_dir> <collected_file_name>
+
 
 ------------------------------ 이전 버전 노트 ---------------------------------------
 
